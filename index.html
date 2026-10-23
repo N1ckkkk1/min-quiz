@@ -112,7 +112,7 @@ th, td {
   <section id="thanks-view" class="card hidden">
     <h2>Tak for dine svar!</h2>
     <p>Dine svar er blevet gemt.</p>
-    <button id="back-to-quiz">Tilbage til quizzen</button>
+    <button id="back-to-quiz">Tilbage til spørgeskemaet</button>
   </section>
 
   <section id="admin-login" class="card hidden">
@@ -126,7 +126,7 @@ th, td {
              autocomplete="current-password" required>
       <button type="submit">Log ind</button>
     </form>
-    <button class="secondary" id="back-public">Tilbage til quizzen</button>
+    <button class="secondary" id="back-public">Tilbage til spørgeskemaet</button>
   </section>
 
   <section id="admin-view" class="hidden">
@@ -227,7 +227,7 @@ function el(tag, text, className = "") {
 let questions = [];
 let responses = [];
 let settings = {
-  title: "Trivsels quiz",
+  title: "Trivsels spørgeskema",
   description: "Velkommen! Besvar spørgsmålene nedenfor."
 };
 
@@ -400,7 +400,7 @@ $("quiz-form").addEventListener("submit", async event => {
   }
 
   if (!questions.length) {
-    return notify("Quizzen har ingen spørgsmål endnu.", true);
+    return notify("spørgeskemaet har ingen spørgsmål endnu.", true);
   }
 
   try {
@@ -518,7 +518,7 @@ onAuthStateChanged(auth, async user => {
       show("admin-login");
     }
   } catch (e) {
-    notify("Kunne ikke hente quizzen. Kontrollér Firebase-konfigurationen.", true);
+    notify("Kunne ikke hente spørgeskemaet. Kontrollér Firebase-konfigurationen.", true);
   }
 });
 </script>
