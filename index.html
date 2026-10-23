@@ -1,0 +1,526 @@
+
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Min quiz</title>
+<style>
+:root {
+  font-family: Arial, sans-serif;
+  color: #202b40;
+  background: #f2f5fa;
+}
+* { box-sizing: border-box; }
+body { margin: 0; }
+header {
+  background: #243b64;
+  color: white;
+  padding: 36px 18px;
+  text-align: center;
+}
+header h1 { margin: 0 0 12px; }
+header p { max-width: 720px; margin: auto; white-space: pre-wrap; }
+main { max-width: 950px; margin: 28px auto; padding: 0 16px 50px; }
+.card {
+  background: white;
+  padding: 24px;
+  margin-bottom: 20px;
+  border-radius: 14px;
+  box-shadow: 0 3px 12px #18294b10;
+}
+input, textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccd4e0;
+  border-radius: 7px;
+  margin: 7px 0 16px;
+  font: inherit;
+}
+textarea { min-height: 110px; }
+button, .link-button {
+  background: #2858a6;
+  color: white;
+  padding: 11px 16px;
+  border: 0;
+  border-radius: 7px;
+  cursor: pointer;
+  font: inherit;
+  text-decoration: none;
+  display: inline-block;
+  margin: 3px;
+}
+button:hover, .link-button:hover { background: #1b417e; }
+.secondary { background: #64748b; }
+.danger { background: #b42318; }
+.question {
+  padding: 16px 0;
+  border-bottom: 1px solid #e5eaf1;
+}
+.answers { display: flex; gap: 25px; margin-top: 12px; }
+.answers label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.answers input { width: auto; margin: 0; }
+.muted { color: #64748b; }
+.error { color: #b42318; }
+.success { color: #18794e; }
+.actions { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; }
+.stat-row { margin: 18px 0; }
+.bar {
+  height: 13px;
+  border-radius: 10px;
+  background: #e5e7eb;
+  overflow: hidden;
+}
+.bar span { display: block; height: 100%; background: #2858a6; }
+.table-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; }
+th, td {
+  border-bottom: 1px solid #e5eaf1;
+  text-align: left;
+  padding: 11px;
+  vertical-align: top;
+}
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1 id="site-title">Min quiz</h1>
+  <p id="site-description">Velkommen! Besvar spørgsmålene nedenfor.</p>
+</header>
+
+<main>
+  <p id="notice" role="status"></p>
+
+  <section id="quiz-view" class="card">
+    <h2>Deltag i quizzen</h2>
+    <form id="quiz-form">
+      <label for="participant"><strong>Dit navn</strong></label>
+      <input id="participant" maxlength="100" required
+             placeholder="Skriv dit navn">
+
+      <div id="questions"></div>
+      <button type="submit">Send mine svar</button>
+    </form>
+  </section>
+
+  <section id="thanks-view" class="card hidden">
+    <h2>Tak for dine svar!</h2>
+    <p>Dine svar er blevet gemt.</p>
+    <button id="back-to-quiz">Tilbage til quizzen</button>
+  </section>
+
+  <section id="admin-login" class="card hidden">
+    <h2>Administrator-login</h2>
+    <p>Log ind med den administratorbruger, du har oprettet i Firebase.</p>
+    <form id="login-form">
+      <label for="admin-email">E-mail</label>
+      <input id="admin-email" type="email" autocomplete="username" required>
+      <label for="admin-password">Adgangskode</label>
+      <input id="admin-password" type="password"
+             autocomplete="current-password" required>
+      <button type="submit">Log ind</button>
+    </form>
+    <button class="secondary" id="back-public">Tilbage til quizzen</button>
+  </section>
+
+  <section id="admin-view" class="hidden">
+    <div class="actions">
+      <button id="show-dashboard">Svar og statistik</button>
+      <button id="show-settings">Rediger information</button>
+      <button id="show-questions">Rediger spørgsmål</button>
+      <button class="secondary" id="logout">Log ud</button>
+    </div>
+
+    <section id="dashboard" class="card">
+      <h2>Statistik og besvarelser</h2>
+      <p id="total-responses"></p>
+      <div id="statistics"></div>
+      <h2>Alle deltagernes svar</h2>
+      <div class="table-wrap">
+        <table>
+          <thead id="response-head"></thead>
+          <tbody id="response-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="settings-panel" class="card hidden">
+      <h2>Information øverst på hjemmesiden</h2>
+      <form id="settings-form">
+        <label for="edit-title">Overskrift</label>
+        <input id="edit-title" maxlength="150" required>
+        <label for="edit-description">Informationstekst</label>
+        <textarea id="edit-description" maxlength="5000"></textarea>
+        <button type="submit">Gem information</button>
+      </form>
+    </section>
+
+    <section id="questions-panel" class="card hidden">
+      <h2>Tilføj et spørgsmål</h2>
+      <form id="add-question-form">
+        <label for="new-question">Ja/nej-spørgsmål</label>
+        <input id="new-question" maxlength="500" required>
+        <button type="submit">Tilføj spørgsmål</button>
+      </form>
+      <h2>Eksisterende spørgsmål</h2>
+      <div id="question-management"></div>
+    </section>
+  </section>
+
+  <p class="muted">
+    <a href="?admin=1">Administrator</a>
+  </p>
+</main>
+
+<script type="module">
+import { initializeApp } from
+  "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
+
+import {
+  getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut
+} from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
+
+import {
+  getFirestore, doc, getDoc, setDoc, collection, getDocs,
+  addDoc, deleteDoc, query, orderBy, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+
+// 1. INDSÆT DIN FIREBASE-KONFIGURATION HER.
+const firebaseConfig = {
+  apiKey: "AIzaSyDjDMX0NQt4KHqXLhAKPSpyH952XT7LDXI",
+  authDomain: "min-quiz-21b78.firebaseapp.com",
+  projectId: "min-quiz-21b78",
+  appId: "1:550035455798:web:bfa7649445cf625b107d97"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const $ = id => document.getElementById(id);
+const show = (id, visible = true) =>
+  $(id).classList.toggle("hidden", !visible);
+
+function notify(message, error = false) {
+  $("notice").textContent = message;
+  $("notice").className = error ? "error" : "success";
+}
+
+function clearNotice() {
+  $("notice").textContent = "";
+  $("notice").className = "";
+}
+
+function el(tag, text, className = "") {
+  const node = document.createElement(tag);
+  node.textContent = text ?? "";
+  if (className) node.className = className;
+  return node;
+}
+
+let questions = [];
+let responses = [];
+let settings = {
+  title: "Min quiz",
+  description: "Velkommen! Besvar spørgsmålene nedenfor."
+};
+
+function isAdmin() {
+  return !!auth.currentUser;
+}
+
+async function loadSettings() {
+  const snap = await getDoc(doc(db, "settings", "main"));
+  if (snap.exists()) settings = { ...settings, ...snap.data() };
+
+  $("site-title").textContent = settings.title;
+  $("site-description").textContent = settings.description;
+  $("edit-title").value = settings.title;
+  $("edit-description").value = settings.description;
+}
+
+async function loadQuestions() {
+  const snap = await getDocs(
+    query(collection(db, "questions"), orderBy("createdAt"))
+  );
+  questions = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  renderQuestions();
+}
+
+function renderQuestions() {
+  const container = $("questions");
+  container.replaceChildren();
+
+  questions.forEach((q, index) => {
+    const wrapper = el("div", "", "question");
+    wrapper.append(el("strong", `${index + 1}. ${q.text}`));
+
+    const answers = el("div", "", "answers");
+    for (const value of ["Ja", "Nej"]) {
+      const label = document.createElement("label");
+      const radio = document.createElement("input");
+      radio.type = "radio";
+      radio.name = `question-${q.id}`;
+      radio.value = value;
+      radio.required = true;
+      label.append(radio, document.createTextNode(value));
+      answers.append(label);
+    }
+
+    wrapper.append(answers);
+    container.append(wrapper);
+  });
+
+  const management = $("question-management");
+  management.replaceChildren();
+
+  questions.forEach((q, index) => {
+    const row = el("div", "", "question");
+    row.append(el("p", `${index + 1}. ${q.text}`));
+    const button = el("button", "Slet spørgsmål", "danger");
+    button.type = "button";
+    button.addEventListener("click", async () => {
+      if (!confirm("Slet spørgsmålet? Tidligere svar på det fjernes også.")) return;
+      try {
+        await deleteDoc(doc(db, "questions", q.id));
+        await loadQuestions();
+        await loadDashboard();
+        notify("Spørgsmålet er slettet.");
+      } catch (e) {
+        notify("Kunne ikke slette. Kontrollér dine Firebase-regler.", true);
+      }
+    });
+    row.append(button);
+    management.append(row);
+  });
+}
+
+async function loadDashboard() {
+  const [qSnap, rSnap] = await Promise.all([
+    getDocs(query(collection(db, "questions"), orderBy("createdAt"))),
+    getDocs(query(collection(db, "responses"), orderBy("createdAt", "desc")))
+  ]);
+
+  questions = qSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+  responses = rSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+  $("total-responses").textContent =
+    `Antal besvarelser: ${responses.length}`;
+
+  const stats = $("statistics");
+  stats.replaceChildren();
+
+  questions.forEach((q, index) => {
+    let yes = 0, no = 0;
+    responses.forEach(r => {
+      const answer = r.answers?.[q.id];
+      if (answer === "Ja") yes++;
+      if (answer === "Nej") no++;
+    });
+
+    const total = yes + no;
+    const yesPct = total ? Math.round(yes / total * 100) : 0;
+    const noPct = total ? 100 - yesPct : 0;
+
+    const box = el("div", "", "stat-row");
+    box.append(el("strong", `${index + 1}. ${q.text}`));
+    box.append(el("p", `Ja: ${yes} (${yesPct}%)`));
+    const bar = el("div", "", "bar");
+    const fill = el("span");
+    fill.style.width = `${yesPct}%`;
+    bar.append(fill);
+    box.append(bar);
+    box.append(el("p", `Nej: ${no} (${noPct}%)`));
+    box.append(el("p", `Besvaret: ${total} af ${responses.length}`, "muted"));
+    stats.append(box);
+  });
+
+  const head = $("response-head");
+  const body = $("response-body");
+  head.replaceChildren();
+  body.replaceChildren();
+
+  const header = el("tr");
+  ["Navn", "Tidspunkt (UTC)", ...questions.map(q => q.text)]
+    .forEach(t => header.append(el("th", t)));
+  head.append(header);
+
+  responses.forEach(r => {
+    const row = el("tr");
+    row.append(el("td", r.participant || "Ukendt"));
+
+    let time = "Ukendt";
+    if (r.createdAt?.toDate) {
+      time = r.createdAt.toDate().toLocaleString("da-DK", {
+        timeZone: "UTC"
+      });
+    }
+    row.append(el("td", time));
+
+    questions.forEach(q => {
+      row.append(el("td", r.answers?.[q.id] || "—"));
+    });
+    body.append(row);
+  });
+
+  renderQuestions();
+}
+
+function showAdminPanel(panel) {
+  ["dashboard", "settings-panel", "questions-panel"].forEach(id =>
+    show(id, id === panel)
+  );
+}
+
+async function refreshPublic() {
+  await loadSettings();
+  await loadQuestions();
+}
+
+$("quiz-form").addEventListener("submit", async event => {
+  event.preventDefault();
+  clearNotice();
+
+  const participant = $("participant").value.trim();
+  if (!participant) return notify("Skriv dit navn.", true);
+
+  const answers = {};
+  for (const q of questions) {
+    const selected = document.querySelector(
+      `input[name="question-${q.id}"]:checked`
+    );
+    if (!selected) return notify("Besvar alle spørgsmål.", true);
+    answers[q.id] = selected.value;
+  }
+
+  if (!questions.length) {
+    return notify("Quizzen har ingen spørgsmål endnu.", true);
+  }
+
+  try {
+    await addDoc(collection(db, "responses"), {
+      participant,
+      answers,
+      createdAt: serverTimestamp()
+    });
+    $("quiz-form").reset();
+    show("quiz-view", false);
+    show("thanks-view");
+    notify("");
+  } catch (e) {
+    notify("Kunne ikke gemme svarene. Prøv igen senere.", true);
+  }
+});
+
+$("back-to-quiz").addEventListener("click", () => {
+  show("thanks-view", false);
+  show("quiz-view");
+});
+
+$("login-form").addEventListener("submit", async event => {
+  event.preventDefault();
+  try {
+    await signInWithEmailAndPassword(
+      auth, $("admin-email").value, $("admin-password").value
+    );
+    notify("Du er logget ind.");
+  } catch (e) {
+    notify("Login mislykkedes. Kontrollér e-mail og adgangskode.", true);
+  }
+});
+
+$("logout").addEventListener("click", async () => {
+  await signOut(auth);
+  location.href = location.pathname;
+});
+
+$("back-public").addEventListener("click", () => {
+  location.href = location.pathname;
+});
+
+$("show-dashboard").addEventListener("click", async () => {
+  showAdminPanel("dashboard");
+  try {
+    await loadDashboard();
+  } catch (e) {
+    notify("Kunne ikke hente svar. Kontrollér Firebase-reglerne.", true);
+  }
+});
+
+$("show-settings").addEventListener("click", () =>
+  showAdminPanel("settings-panel")
+);
+
+$("show-questions").addEventListener("click", () =>
+  showAdminPanel("questions-panel")
+);
+
+$("settings-form").addEventListener("submit", async event => {
+  event.preventDefault();
+  const title = $("edit-title").value.trim();
+  const description = $("edit-description").value.trim();
+
+  if (!title) return notify("Overskriften skal udfyldes.", true);
+
+  try {
+    await setDoc(doc(db, "settings", "main"), { title, description });
+    settings = { title, description };
+    $("site-title").textContent = title;
+    $("site-description").textContent = description;
+    notify("Informationen er gemt.");
+  } catch (e) {
+    notify("Kunne ikke gemme. Kontrollér, at du er administrator.", true);
+  }
+});
+
+$("add-question-form").addEventListener("submit", async event => {
+  event.preventDefault();
+  const text = $("new-question").value.trim();
+  if (!text) return;
+
+  try {
+    await addDoc(collection(db, "questions"), {
+      text,
+      createdAt: serverTimestamp()
+    });
+    $("new-question").value = "";
+    await loadQuestions();
+    notify("Spørgsmålet er tilføjet.");
+  } catch (e) {
+    notify("Kunne ikke tilføje spørgsmålet.", true);
+  }
+});
+
+onAuthStateChanged(auth, async user => {
+  clearNotice();
+  const wantsAdmin = new URLSearchParams(location.search).get("admin") === "1";
+
+  show("admin-login", false);
+  show("admin-view", false);
+  show("quiz-view", !wantsAdmin);
+  show("thanks-view", false);
+
+  try {
+    await refreshPublic();
+
+    if (wantsAdmin && user) {
+      show("quiz-view", false);
+      show("admin-view");
+      showAdminPanel("dashboard");
+      await loadDashboard();
+    } else if (wantsAdmin) {
+      show("admin-login");
+    }
+  } catch (e) {
+    notify("Kunne ikke hente quizzen. Kontrollér Firebase-konfigurationen.", true);
+  }
+});
+</script>
+</body>
+</html>
