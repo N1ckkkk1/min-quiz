@@ -49,6 +49,14 @@ th,td{border-bottom:1px solid #e5eaf1;text-align:left;padding:11px;vertical-alig
 <form id="quiz-form">
 <label for="participant"><strong>Dit navn (valgfrit)</strong></label>
 <input id="participant" maxlength="100" placeholder="Skriv dit navn">
+<label for="participantAge">Alder</label>
+<input
+  id="participantAge"
+  type="number"
+  min="13"
+  max="20"
+  placeholder="Skriv din alder"
+>
 <div id="questions"></div>
 <button type="submit">Send mine svar</button>
 </form>
