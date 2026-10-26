@@ -440,6 +440,7 @@ $("quiz-form").addEventListener("submit", async event => {
   notify("");
 
   const participant = $("participant").value.trim();
+  const participantAge = $("participantAge").value.trim();
   const answers = {};
 
   for (const q of questions) {
@@ -460,6 +461,7 @@ $("quiz-form").addEventListener("submit", async event => {
   try {
     await addDoc(collection(db, "responses"), {
       participant,
+      participantAge,
       answers,
       createdAt: serverTimestamp()
     });
