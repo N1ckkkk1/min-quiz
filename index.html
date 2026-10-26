@@ -596,33 +596,62 @@ async function loadDashboard() {
     stats.append(box);
   });
 
-  const head = $("response-head");
-  const body = $("response-body");
-  head.replaceChildren();
-  body.replaceChildren();
+  
+ const head=$("response-head"),body=$("response-body");
+ head.replaceChildren();
+ body.replaceChildren();
 
-  const headerRow = el("tr");
-  ["Navn", "Tidspunkt (UTC)", ...questions.map(q => q.text)]
-    .forEach(title => headerRow.append(el("th", title)));
-  head.append(headerRow);
+ const tr=el("tr");
+ ["Navn","Tidspunkt (UTC)",...questions.map(q=>q.text),"Handling"]
+   .forEach(t=>tr.append(el("th",t)));
+ head.append(tr);
 
-  responses.forEach(response => {
-    const row = el("tr");
-    row.append(el("td", response.participant || "Anonym"));
+ responses.forEach(r=>{
+   const row=el("tr");
 
-    let time = "Ukendt";
-    if (response.createdAt?.toDate) {
-      time = response.createdAt.toDate().toLocaleString("da-DK", {timeZone:"UTC"});
-    }
-    row.append(el("td", time));
+   row.append(el("td",r.participant||"Anonym"));
 
-    questions.forEach(q => {
-      row.append(el("td", response.answers?.[q.id] || "—"));
-    });
-    body.append(row);
-  });
+   let time="Ukendt";
+   if(r.createdAt?.toDate){
+     time=r.createdAt.toDate().toLocaleString("da-DK",{
+       timeZone:"UTC"
+     });
+   }
+   row.append(el("td",time));
 
-  renderQuestionManagement();
+   questions.forEach(q=>{
+     row.append(el("td",r.answers?.[q.id]||"—"));
+   });
+
+   const actionCell=el("td");
+   const deleteButton=el("button","Slet deltager","danger");
+   deleteButton.type="button";
+
+   deleteButton.addEventListener("click",async()=>{
+     if(!confirm(
+       "Er du sikker på, at du vil slette denne deltagers besvarelse? Dette kan ikke fortrydes."
+     )) return;
+
+     try{
+       await deleteDoc(doc(db,"responses",r.id));
+       await loadDashboard();
+       notify("Deltagerens besvarelse er slettet.");
+     }catch(error){
+       console.error(error);
+       notify(
+         "Kunne ikke slette besvarelsen. Kontrollér Firebase-reglerne.",
+         true
+       );
+     }
+   });
+
+   actionCell.append(deleteButton);
+   row.append(actionCell);
+   body.append(row);
+ });
+
+ renderQuestionManagement();
+
 }
 
 onAuthStateChanged(auth, async user => {
