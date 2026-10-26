@@ -262,7 +262,7 @@ function renderQuestions() {
     wrapper.append(el("strong", `${index + 1}. ${q.text}`));
 
     const answers = el("div", "", "answers");
-    for (const value of ["Ja", "Nej"]) {
+    for (const value of ["Ja", "Nej", "Ved ikke"]) {
       const label = document.createElement("label");
       const radio = document.createElement("input");
       radio.type = "radio";
