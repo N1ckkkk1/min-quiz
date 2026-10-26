@@ -422,9 +422,13 @@ function showEditor(row, q) {
       await loadQuestions();
       await loadDashboard();
       notify("Spørgsmålet er opdateret.");
-    } catch (error) {
-      notify("Kunne ikke gemme. Kontrollér Firebase-reglerne.", true);
-    }
+    } catch(e){
+  console.error("Fejl ved lagring af svar:", e);
+  notify(
+    "Kunne ikke gemme svarene: " + (e.code || e.message),
+    true
+  );
+}
   });
 
   box.append(save);
