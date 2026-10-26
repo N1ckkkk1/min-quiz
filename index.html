@@ -12,12 +12,12 @@ body{margin:0}
 header{background:#243b64;color:white;padding:36px 18px;text-align:center}
 header h1{margin:0 0 12px}
 header p{max-width:720px;margin:auto;white-space:pre-wrap}
-main{max-width:950px;margin:28px auto;padding:0 16px 50px}
+main{max-width:1100px;margin:28px auto;padding:0 16px 50px}
 .card{background:white;padding:24px;margin-bottom:20px;border-radius:14px;box-shadow:0 3px 12px #18294b10}
 input,textarea,select{width:100%;padding:12px;border:1px solid #ccd4e0;border-radius:7px;margin:7px 0 16px;font:inherit}
 textarea{min-height:90px}
-button,.link-button{background:#2858a6;color:white;padding:11px 16px;border:0;border-radius:7px;cursor:pointer;font:inherit;text-decoration:none;display:inline-block;margin:3px}
-button:hover,.link-button:hover{background:#1b417e}
+button{background:#2858a6;color:white;padding:11px 16px;border:0;border-radius:7px;cursor:pointer;font:inherit;margin:3px}
+button:hover{background:#1b417e}
 .secondary{background:#64748b}
 .danger{background:#b42318}
 .question{padding:16px 0;border-bottom:1px solid #e5eaf1}
@@ -35,9 +35,9 @@ button:hover,.link-button:hover{background:#1b417e}
 table{border-collapse:collapse;width:100%}
 th,td{border-bottom:1px solid #e5eaf1;text-align:left;padding:11px;vertical-align:top}
 .hidden{display:none!important}
-.option-row{display:flex;gap:8px;align-items:center}
 .branch-editor{background:#f2f5fa;padding:12px;border-radius:8px;margin:12px 0}
 .small{font-size:.92rem}
+.delete-response{background:#b42318;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -45,6 +45,7 @@ th,td{border-bottom:1px solid #e5eaf1;text-align:left;padding:11px;vertical-alig
 <h1 id="site-title">Trivsels spørgeskema</h1>
 <p id="site-description">Velkommen! Besvar spørgsmålene nedenfor.</p>
 </header>
+
 <main>
 <p id="notice" role="status"></p>
 
@@ -89,6 +90,7 @@ th,td{border-bottom:1px solid #e5eaf1;text-align:left;padding:11px;vertical-alig
 <p id="total-responses"></p>
 <div id="statistics"></div>
 <h2>Alle deltagernes svar</h2>
+<p class="muted small">Du kan slette en besvarelse ved at trykke på Slet ud for deltageren.</p>
 <div class="table-wrap">
 <table>
 <thead id="response-head"></thead>
@@ -143,7 +145,8 @@ import {
  deleteDoc,query,orderBy,serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
-// Firebase-konfiguration
+// Firebase-konfiguration fra den tidligere version.
+// Kontrollér API-nøglen i Firebase Console, hvis den er ugyldig.
 const firebaseConfig={
  apiKey:"AIzaSyDjDMX0NQt4KHqXLhAKPSpyH952XT7LDXI",
  authDomain:"min-quiz-21b78.firebaseapp.com",
@@ -212,6 +215,7 @@ function renderQuestions(){
   wrap.append(el("strong",`${i+1}. ${q.text}`));
 
   const area=el("div","","answers");
+
   optsFor(q).forEach(value=>{
    const label=document.createElement("label");
    const radio=document.createElement("input");
@@ -281,7 +285,8 @@ function renderQuestionManagement(){
   const del=el("button","Slet spørgsmål","danger");
   del.type="button";
   del.addEventListener("click",async()=>{
-   if(!confirm("Slet spørgsmålet?"))return;
+   if(!confirm("Er du sikker på, at du vil slette spørgsmålet?"))return;
+
    try{
     await deleteDoc(doc(db,"questions",q.id));
     await loadQuestions();
@@ -289,7 +294,7 @@ function renderQuestionManagement(){
     notify("Spørgsmålet er slettet.");
    }catch(e){
     console.error("Fejl ved sletning af spørgsmål:",e);
-    notify("Kunne ikke slette: "+(e.code||e.message),true);
+    notify("Kunne ikke slette spørgsmålet: "+(e.code||e.message),true);
    }
   });
   row.append(del);
@@ -399,19 +404,19 @@ function showEditor(row,q){
    :null;
 
   try{
-   const data={
+   await setDoc(doc(db,"questions",q.id),{
     text:questionText,
     type:type.value,
     options:questionOptions,
     branch:branch
-   };
-   await setDoc(doc(db,"questions",q.id),data,{merge:true});
+   },{merge:true});
+
    await loadQuestions();
    await loadDashboard();
    notify("Spørgsmålet er opdateret.");
   }catch(e){
    console.error("Fejl ved redigering af spørgsmål:",e);
-   notify("Kunne ikke gemme: "+(e.code||e.message),true);
+   notify("Kunne ikke gemme ændringer: "+(e.code||e.message),true);
   }
  });
 
@@ -424,7 +429,7 @@ $("new-type").addEventListener("change",()=>{
  show("new-options-area",$("new-type").value==="custom");
 });
 
-// INDSENDELSE AF SVAR
+// INDSENDELSE AF SVAR MED FEJLDIAGNOSTIK
 $("quiz-form").addEventListener("submit",async event=>{
  event.preventDefault();
  clearNotice();
@@ -463,17 +468,15 @@ $("quiz-form").addEventListener("submit",async event=>{
   notify("");
 
  }catch(e){
-  // NY FEJLDIAGNOSTIK
   console.error("Fejl ved lagring af svar:",e);
-  notify(
-   "Kunne ikke gemme svarene: "+(e.code||e.message),
-   true
-  );
+  notify("Kunne ikke gemme svarene: "+(e.code||e.message),true);
  }
 });
 
+// ADMINISTRATOR-LOGIN
 $("login-form").addEventListener("submit",async e=>{
  e.preventDefault();
+
  try{
   await signInWithEmailAndPassword(
    auth,
@@ -520,6 +523,7 @@ $("show-questions").addEventListener("click",()=>{
  showAdminPanel("questions-panel");
 });
 
+// GEM INFORMATION
 $("settings-form").addEventListener("submit",async e=>{
  e.preventDefault();
 
@@ -540,6 +544,7 @@ $("settings-form").addEventListener("submit",async e=>{
  }
 });
 
+// TILFØJ SPØRGSMÅL
 $("add-question-form").addEventListener("submit",async e=>{
  e.preventDefault();
 
@@ -564,13 +569,14 @@ $("add-question-form").addEventListener("submit",async e=>{
   $("new-type").value="yesno";
   show("new-options-area",false);
   await loadQuestions();
-  notify("Spørgsmålet er tilføjet. Du kan nu redigere dets forgrening.");
+  notify("Spørgsmålet er tilføjet.");
  }catch(e){
   console.error("Fejl ved tilføjelse af spørgsmål:",e);
   notify("Kunne ikke tilføje spørgsmålet: "+(e.code||e.message),true);
  }
 });
 
+// HENT STATISTIK OG DELTAGERNES SVAR
 async function loadDashboard(){
  const [qs,rs]=await Promise.all([
   getDocs(query(collection(db,"questions"),orderBy("createdAt"))),
@@ -617,19 +623,24 @@ async function loadDashboard(){
   stats.append(box);
  });
 
+ // SVARTABEL MED SLET-KNAP FOR HVER DELTAGER
  const head=$("response-head");
  const body=$("response-body");
  head.replaceChildren();
  body.replaceChildren();
 
  const tr=el("tr");
- ["Navn","Tidspunkt (UTC)",...questions.map(q=>q.text)].forEach(
-  t=>tr.append(el("th",t))
- );
+ [
+  "Navn",
+  "Tidspunkt (UTC)",
+  ...questions.map(q=>q.text),
+  "Handling"
+ ].forEach(t=>tr.append(el("th",t)));
  head.append(tr);
 
  responses.forEach(r=>{
   const row=el("tr");
+
   row.append(el("td",r.participant||"Anonym"));
 
   let time="Ukendt";
@@ -644,12 +655,41 @@ async function loadDashboard(){
    row.append(el("td",r.answers?.[q.id]||"—"));
   });
 
+  const actionCell=el("td");
+  const deleteButton=el("button","Slet","delete-response");
+  deleteButton.type="button";
+
+  deleteButton.addEventListener("click",async()=>{
+   const who=r.participant||"Anonym";
+
+   if(!confirm(
+    `Vil du slette besvarelsen fra ${who}? Denne handling kan ikke fortrydes.`
+   ))return;
+
+   deleteButton.disabled=true;
+   deleteButton.textContent="Sletter…";
+
+   try{
+    await deleteDoc(doc(db,"responses",r.id));
+    await loadDashboard();
+    notify("Besvarelsen er slettet.");
+   }catch(e){
+    console.error("Fejl ved sletning af besvarelse:",e);
+    notify("Kunne ikke slette besvarelsen: "+(e.code||e.message),true);
+    deleteButton.disabled=false;
+    deleteButton.textContent="Slet";
+   }
+  });
+
+  actionCell.append(deleteButton);
+  row.append(actionCell);
   body.append(row);
  });
-
+ 
  renderQuestionManagement();
 }
 
+// START HJEMMESIDEN
 onAuthStateChanged(auth,async user=>{
  clearNotice();
 
@@ -675,12 +715,10 @@ onAuthStateChanged(auth,async user=>{
   }
  }catch(e){
   console.error("Fejl ved opstart:",e);
-  notify(
-   "Kunne ikke hente spørgeskemaet: "+(e.code||e.message),
-   true
-  );
+  notify("Kunne ikke hente spørgeskemaet: "+(e.code||e.message),true);
  }
 });
 </script>
 </body>
 </html>
+
