@@ -103,9 +103,6 @@ th, td {
       <label for="participant"><strong>Dit navn (valgfrit)</strong></label>
       <input id="participant" maxlength="100"
              placeholder="Skriv dit navn">
-      <label for="participant"><strong>Din alder</strong></label>
-      <input id="participant" maxlength="100"
-             placeholder="Skriv din alder">
 
       <div id="questions"></div>
       <button type="submit">Send mine svar</button>
@@ -403,7 +400,7 @@ $("quiz-form").addEventListener("submit", async event => {
   }
 
   if (!questions.length) {
-    return notify("spørgeskemaet har ingen spørgsmål endnu.", true);
+    return notify("Spørgeskemaet har ingen spørgsmål endnu.", true);
   }
 
   try {
