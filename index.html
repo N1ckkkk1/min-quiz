@@ -6,194 +6,142 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Trivsels spørgeskema</title>
 <style>
-:root {
-  font-family: Arial, sans-serif;
-  color: #202b40;
-  background: #f2f5fa;
-}
-* { box-sizing: border-box; }
-body { margin: 0; }
-header {
-  background: #243b64;
-  color: white;
-  padding: 36px 18px;
-  text-align: center;
-}
-header h1 { margin: 0 0 12px; }
-header p { max-width: 720px; margin: auto; white-space: pre-wrap; }
-main { max-width: 950px; margin: 28px auto; padding: 0 16px 50px; }
-.card {
-  background: white;
-  padding: 24px;
-  margin-bottom: 20px;
-  border-radius: 14px;
-  box-shadow: 0 3px 12px #18294b10;
-}
-input, textarea {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid #ccd4e0;
-  border-radius: 7px;
-  margin: 7px 0 16px;
-  font: inherit;
-}
-textarea { min-height: 110px; }
-button, .link-button {
-  background: #2858a6;
-  color: white;
-  padding: 11px 16px;
-  border: 0;
-  border-radius: 7px;
-  cursor: pointer;
-  font: inherit;
-  text-decoration: none;
-  display: inline-block;
-  margin: 3px;
-}
-button:hover, .link-button:hover { background: #1b417e; }
-.secondary { background: #64748b; }
-.danger { background: #b42318; }
-.question {
-  padding: 16px 0;
-  border-bottom: 1px solid #e5eaf1;
-}
-.answers { display: flex; gap: 25px; margin-top: 12px; }
-.answers label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.answers input { width: auto; margin: 0; }
-.muted { color: #64748b; }
-.error { color: #b42318; }
-.success { color: #18794e; }
-.actions { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; }
-.stat-row { margin: 18px 0; }
-.bar {
-  height: 13px;
-  border-radius: 10px;
-  background: #e5e7eb;
-  overflow: hidden;
-}
-.bar span { display: block; height: 100%; background: #2858a6; }
-.table-wrap { overflow-x: auto; }
-table { border-collapse: collapse; width: 100%; }
-th, td {
-  border-bottom: 1px solid #e5eaf1;
-  text-align: left;
-  padding: 11px;
-  vertical-align: top;
-}
-.hidden { display: none !important; }
+:root{font-family:Arial,sans-serif;color:#202b40;background:#f2f5fa}
+*{box-sizing:border-box}
+body{margin:0}
+header{background:#243b64;color:white;padding:36px 18px;text-align:center}
+header h1{margin:0 0 12px}
+header p{max-width:720px;margin:auto;white-space:pre-wrap}
+main{max-width:950px;margin:28px auto;padding:0 16px 50px}
+.card{background:white;padding:24px;margin-bottom:20px;border-radius:14px;box-shadow:0 3px 12px #18294b10}
+input,textarea,select{width:100%;padding:12px;border:1px solid #ccd4e0;border-radius:7px;margin:7px 0 16px;font:inherit}
+textarea{min-height:90px}
+button{background:#2858a6;color:white;padding:11px 16px;border:0;border-radius:7px;cursor:pointer;font:inherit;margin:3px}
+button:hover{background:#1b417e}
+.secondary{background:#64748b}.danger{background:#b42318}
+.question{padding:16px 0;border-bottom:1px solid #e5eaf1}
+.answers{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px}
+.answers label{display:flex;align-items:center;gap:8px}
+.answers input{width:auto;margin:0}
+.muted{color:#64748b}.error{color:#b42318}.success{color:#18794e}
+.actions{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px}
+.stat-row{margin:18px 0}
+.bar{height:13px;border-radius:10px;background:#e5e7eb;overflow:hidden}
+.bar span{display:block;height:100%;background:#2858a6}
+table{border-collapse:collapse;width:100%}
+th,td{border-bottom:1px solid #e5eaf1;text-align:left;padding:11px;vertical-align:top}
+.table-wrap{overflow-x:auto}
+.hidden{display:none!important}
+.branch-editor{background:#f2f5fa;padding:12px;border-radius:8px;margin:12px 0}
+.small{font-size:.92rem}
 </style>
 </head>
 <body>
-
 <header>
   <h1 id="site-title">Trivsels spørgeskema</h1>
   <p id="site-description">Velkommen! Besvar spørgsmålene nedenfor.</p>
 </header>
-
 <main>
-  <p id="notice" role="status"></p>
+<p id="notice" role="status"></p>
 
-  <section id="quiz-view" class="card">
-    <h2>Deltag i spørgeskemaet</h2>
-    <form id="quiz-form">
-      <label for="participant"><strong>Dit navn (valgfrit)</strong></label>
-      <input id="participant" maxlength="100"
-             placeholder="Skriv dit navn">
+<section id="quiz-view" class="card">
+<h2>Deltag i spørgeskemaet</h2>
+<form id="quiz-form">
+<label for="participant"><strong>Dit navn (valgfrit)</strong></label>
+<input id="participant" maxlength="100" placeholder="Skriv dit navn">
+<div id="questions"></div>
+<button type="submit">Send mine svar</button>
+</form>
+</section>
 
-      <div id="questions"></div>
-      <button type="submit">Send mine svar</button>
-    </form>
-  </section>
+<section id="thanks-view" class="card hidden">
+<h2>Tak for dine svar!</h2>
+<p>Dine svar er blevet gemt.</p>
+</section>
 
-  <section id="thanks-view" class="card hidden">
-    <h2>Tak for dine svar!</h2>
-    <p>Dine svar er blevet gemt.</p>
-    <button id="back-to-quiz">Tilbage til spørgeskemaet</button>
-  </section>
+<section id="admin-login" class="card hidden">
+<h2>Administrator-login</h2>
+<p>Log ind med administratorbrugeren fra Firebase.</p>
+<form id="login-form">
+<label for="admin-email">E-mail</label>
+<input id="admin-email" type="email" autocomplete="username" required>
+<label for="admin-password">Adgangskode</label>
+<input id="admin-password" type="password" autocomplete="current-password" required>
+<button type="submit">Log ind</button>
+</form>
+<button class="secondary" id="back-public">Tilbage til spørgeskemaet</button>
+</section>
 
-  <section id="admin-login" class="card hidden">
-    <h2>Administrator-login</h2>
-    <p>Log ind med den administratorbruger, du har oprettet i Firebase.</p>
-    <form id="login-form">
-      <label for="admin-email">E-mail</label>
-      <input id="admin-email" type="email" autocomplete="username" required>
-      <label for="admin-password">Adgangskode</label>
-      <input id="admin-password" type="password"
-             autocomplete="current-password" required>
-      <button type="submit">Log ind</button>
-    </form>
-    <button class="secondary" id="back-public">Tilbage til spørgeskemaet</button>
-  </section>
+<section id="admin-view" class="hidden">
+<div class="actions">
+<button id="show-dashboard">Svar og statistik</button>
+<button id="show-settings">Rediger information</button>
+<button id="show-questions">Rediger spørgsmål</button>
+<button class="secondary" id="logout">Log ud</button>
+</div>
 
-  <section id="admin-view" class="hidden">
-    <div class="actions">
-      <button id="show-dashboard">Svar og statistik</button>
-      <button id="show-settings">Rediger information</button>
-      <button id="show-questions">Rediger spørgsmål</button>
-      <button class="secondary" id="logout">Log ud</button>
-    </div>
+<section id="dashboard" class="card">
+<h2>Statistik og besvarelser</h2>
+<p id="total-responses"></p>
+<div id="statistics"></div>
+<h2>Alle deltagernes svar</h2>
+<div class="table-wrap">
+<table>
+<thead id="response-head"></thead>
+<tbody id="response-body"></tbody>
+</table>
+</div>
+</section>
 
-    <section id="dashboard" class="card">
-      <h2>Statistik og besvarelser</h2>
-      <p id="total-responses"></p>
-      <div id="statistics"></div>
-      <h2>Alle deltagernes svar</h2>
-      <div class="table-wrap">
-        <table>
-          <thead id="response-head"></thead>
-          <tbody id="response-body"></tbody>
-        </table>
-      </div>
-    </section>
+<section id="settings-panel" class="card hidden">
+<h2>Information øverst på hjemmesiden</h2>
+<form id="settings-form">
+<label for="edit-title">Overskrift</label>
+<input id="edit-title" maxlength="150" required>
+<label for="edit-description">Informationstekst</label>
+<textarea id="edit-description" maxlength="5000"></textarea>
+<button type="submit">Gem information</button>
+</form>
+</section>
 
-    <section id="settings-panel" class="card hidden">
-      <h2>Information øverst på hjemmesiden</h2>
-      <form id="settings-form">
-        <label for="edit-title">Overskrift</label>
-        <input id="edit-title" maxlength="150" required>
-        <label for="edit-description">Informationstekst</label>
-        <textarea id="edit-description" maxlength="5000"></textarea>
-        <button type="submit">Gem information</button>
-      </form>
-    </section>
+<section id="questions-panel" class="card hidden">
+<h2>Tilføj et spørgsmål</h2>
+<form id="add-question-form">
+<label for="new-question">Spørgsmålstekst</label>
+<input id="new-question" maxlength="500" required>
+<label for="new-type">Spørgsmålstype</label>
+<select id="new-type">
+<option value="yesno">Ja / Nej / Ved ikke</option>
+<option value="custom">Egne svarmuligheder</option>
+</select>
+<div id="new-options-area" class="hidden">
+<label for="new-options">Svarmuligheder (én pr. linje)</label>
+<textarea id="new-options" placeholder="AI-assistent&#10;Lærer&#10;Ingen af delene"></textarea>
+<p class="muted small">Efter oprettelse kan du vælge opfølgende spørgsmål for hver svarmulighed.</p>
+</div>
+<button type="submit">Tilføj spørgsmål</button>
+</form>
+<h2>Eksisterende spørgsmål</h2>
+<div id="question-management"></div>
+</section>
+</section>
 
-    <section id="questions-panel" class="card hidden">
-      <h2>Tilføj et spørgsmål</h2>
-      <form id="add-question-form">
-        <label for="new-question">Ja/nej-spørgsmål</label>
-        <input id="new-question" maxlength="500" required>
-        <button type="submit">Tilføj spørgsmål</button>
-      </form>
-      <h2>Eksisterende spørgsmål</h2>
-      <div id="question-management"></div>
-    </section>
-  </section>
-
-  <p class="muted">
-    <a href="?admin=1">Administrator</a>
-  </p>
+<p class="muted"><a href="?admin=1">Administrator</a></p>
 </main>
 
 <script type="module">
-import { initializeApp } from
-  "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
-
+import {initializeApp} from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
 import {
   getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
-
 import {
   getFirestore, doc, getDoc, setDoc, collection, getDocs,
   addDoc, deleteDoc, query, orderBy, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
-// 1. INDSÆT DIN FIREBASE-KONFIGURATION HER.
+// Firebase-konfiguration til dit eksisterende projekt
 const firebaseConfig = {
-  apiKey: "AIzaSyDjDMX0NQt4KHqXLhAKPSpyH952XT7LDXI",
+  apiKey: "AIzaSyDjDMX0Qt4KHqXLhAKPSpyH952XT7LDXI",
   authDomain: "min-quiz-21b78.firebaseapp.com",
   projectId: "min-quiz-21b78",
   appId: "1:550035455798:web:bfa7649445cf625b107d97"
@@ -202,25 +150,17 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-
 const $ = id => document.getElementById(id);
-const show = (id, visible = true) =>
-  $(id).classList.toggle("hidden", !visible);
+const show = (id, visible=true) => $(id).classList.toggle("hidden", !visible);
 
-function notify(message, error = false) {
+function notify(message, error=false) {
   $("notice").textContent = message;
   $("notice").className = error ? "error" : "success";
 }
-
-function clearNotice() {
-  $("notice").textContent = "";
-  $("notice").className = "";
-}
-
-function el(tag, text, className = "") {
+function el(tag, text="", cls="") {
   const node = document.createElement(tag);
   node.textContent = text ?? "";
-  if (className) node.className = className;
+  if (cls) node.className = cls;
   return node;
 }
 
@@ -231,14 +171,20 @@ let settings = {
   description: "Velkommen! Besvar spørgsmålene nedenfor."
 };
 
-function isAdmin() {
-  return !!auth.currentUser;
+function optionsFor(q) {
+  return q.type === "custom" && Array.isArray(q.options) && q.options.length
+    ? q.options
+    : ["Ja", "Nej", "Ved ikke"];
+}
+
+function isVisible(q, answers) {
+  if (!q.branch || !q.branch.parentId) return true;
+  return answers[q.branch.parentId] === q.branch.answer;
 }
 
 async function loadSettings() {
-  const snap = await getDoc(doc(db, "settings", "main"));
-  if (snap.exists()) settings = { ...settings, ...snap.data() };
-
+  const snapshot = await getDoc(doc(db, "settings", "main"));
+  if (snapshot.exists()) settings = {...settings, ...snapshot.data()};
   $("site-title").textContent = settings.title;
   $("site-description").textContent = settings.description;
   $("edit-title").value = settings.title;
@@ -246,11 +192,41 @@ async function loadSettings() {
 }
 
 async function loadQuestions() {
-  const snap = await getDocs(
+  const snapshot = await getDocs(
     query(collection(db, "questions"), orderBy("createdAt"))
   );
-  questions = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  questions = snapshot.docs.map(d => ({id:d.id, ...d.data()}));
   renderQuestions();
+}
+
+function getChosenAnswers() {
+  const answers = {};
+  questions.forEach(q => {
+    const selected = document.querySelector(
+      `input[name="question-${q.id}"]:checked`
+    );
+    if (selected) answers[q.id] = selected.value;
+  });
+  return answers;
+}
+
+function updateBranchVisibility() {
+  const answers = getChosenAnswers();
+
+  // Flere niveauer af forgrening understøttes.
+  questions.forEach(q => {
+    const node = document.querySelector(`[data-qid="${q.id}"]`);
+    if (!node) return;
+
+    const visible = isVisible(q, answers);
+    node.classList.toggle("hidden", !visible);
+
+    node.querySelectorAll("input").forEach(input => {
+      input.disabled = !visible;
+      input.required = visible;
+      if (!visible) input.checked = false;
+    });
+  });
 }
 
 function renderQuestions() {
@@ -258,144 +234,214 @@ function renderQuestions() {
   container.replaceChildren();
 
   questions.forEach((q, index) => {
-    const wrapper = el("div", "", "question");
-    wrapper.append(el("strong", `${index + 1}. ${q.text}`));
+    const wrap = el("div", "", "question");
+    wrap.dataset.qid = q.id;
+    wrap.append(el("strong", `${index+1}. ${q.text}`));
 
-    const answers = el("div", "", "answers");
-    for (const value of ["Ja", "Nej", "Ved ikke"]) {
+    const answerArea = el("div", "", "answers");
+    optionsFor(q).forEach(value => {
       const label = document.createElement("label");
       const radio = document.createElement("input");
       radio.type = "radio";
       radio.name = `question-${q.id}`;
       radio.value = value;
-      radio.required = true;
       label.append(radio, document.createTextNode(value));
-      answers.append(label);
-    }
+      answerArea.append(label);
+    });
 
-    wrapper.append(answers);
-    container.append(wrapper);
+    wrap.append(answerArea);
+    container.append(wrap);
   });
 
+  // Vigtigt: Opdater forgreningerne ved hvert svarskift.
+  container.onchange = updateBranchVisibility;
+  updateBranchVisibility();
+  renderQuestionManagement();
+}
+
+function renderQuestionManagement() {
   const management = $("question-management");
   management.replaceChildren();
 
   questions.forEach((q, index) => {
     const row = el("div", "", "question");
-    row.append(el("p", `${index + 1}. ${q.text}`));
-    const button = el("button", "Slet spørgsmål", "danger");
-    button.type = "button";
-    button.addEventListener("click", async () => {
-      if (!confirm("Slet spørgsmålet? Tidligere svar på det fjernes også.")) return;
+    row.append(el("h3", `${index+1}. ${q.text}`));
+    row.append(el(
+      "p",
+      `Type: ${q.type === "custom" ? "Egne svarmuligheder" : "Ja/nej"}`,
+      "muted"
+    ));
+
+    if (q.type === "custom") {
+      row.append(el("p", `Svar: ${optionsFor(q).join(" · ")}`));
+    }
+    if (q.branch) {
+      const parent = questions.find(p => p.id === q.branch.parentId);
+      row.append(el("p",
+        `Vises kun når "${parent?.text || "spørgsmålet"}" besvares med "${q.branch.answer}".`,
+        "muted"
+      ));
+    }
+
+    const edit = el("button", "Rediger spørgsmål og forgrening");
+    edit.type = "button";
+    edit.addEventListener("click", () => showEditor(row, q));
+    row.append(edit);
+
+    const del = el("button", "Slet spørgsmål", "danger");
+    del.type = "button";
+    del.addEventListener("click", async () => {
+      if (!confirm("Slet spørgsmålet?")) return;
       try {
         await deleteDoc(doc(db, "questions", q.id));
         await loadQuestions();
         await loadDashboard();
         notify("Spørgsmålet er slettet.");
-      } catch (e) {
-        notify("Kunne ikke slette. Kontrollér dine Firebase-regler.", true);
+      } catch (error) {
+        notify("Kunne ikke slette. Kontrollér Firebase-reglerne.", true);
       }
     });
-    row.append(button);
+    row.append(del);
     management.append(row);
   });
 }
 
-async function loadDashboard() {
-  const [qSnap, rSnap] = await Promise.all([
-    getDocs(query(collection(db, "questions"), orderBy("createdAt"))),
-    getDocs(query(collection(db, "responses"), orderBy("createdAt", "desc")))
-  ]);
+function showEditor(row, q) {
+  const old = row.querySelector(".editor");
+  if (old) { old.remove(); return; }
 
-  questions = qSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-  responses = rSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+  const box = el("div", "", "branch-editor");
+  box.classList.add("editor");
+  box.append(el("strong", "Rediger spørgsmål"));
 
-  $("total-responses").textContent =
-    `Antal besvarelser: ${responses.length}`;
+  box.append(el("label", "Spørgsmålstype"));
+  const type = document.createElement("select");
+  type.innerHTML =
+    '<option value="yesno">Ja / Nej / Ved ikke</option>' +
+    '<option value="custom">Egne svarmuligheder</option>';
+  type.value = q.type || "yesno";
+  box.append(type);
 
-  const stats = $("statistics");
-  stats.replaceChildren();
+  box.append(el("label", "Spørgsmålstekst"));
+  const text = document.createElement("input");
+  text.value = q.text || "";
+  text.maxLength = 500;
+  box.append(text);
 
-  questions.forEach((q, index) => {
-    let yes = 0, no = 0;
-    responses.forEach(r => {
-      const answer = r.answers?.[q.id];
-      if (answer === "Ja") yes++;
-      if (answer === "Nej") no++;
-    });
+  const optsLabel = el("label", "Svarmuligheder (én pr. linje)");
+  box.append(optsLabel);
+  const opts = document.createElement("textarea");
+  opts.value = optionsFor(q).join("\n");
+  box.append(opts);
 
-    const total = yes + no;
-    const yesPct = total ? Math.round(yes / total * 100) : 0;
-    const noPct = total ? 100 - yesPct : 0;
+  box.append(el("label", "Vis kun hvis dette spørgsmål besvares med…"));
+  const parent = document.createElement("select");
+  const none = document.createElement("option");
+  none.value = "";
+  none.textContent = "Vis altid";
+  parent.append(none);
 
-    const box = el("div", "", "stat-row");
-    box.append(el("strong", `${index + 1}. ${q.text}`));
-    box.append(el("p", `Ja: ${yes} (${yesPct}%)`));
-    const bar = el("div", "", "bar");
-    const fill = el("span");
-    fill.style.width = `${yesPct}%`;
-    bar.append(fill);
-    box.append(bar);
-    box.append(el("p", `Nej: ${no} (${noPct}%)`));
-    box.append(el("p", `Besvaret: ${total} af ${responses.length}`, "muted"));
-    stats.append(box);
+  questions.filter(p => p.id !== q.id).forEach(p => {
+    const option = document.createElement("option");
+    option.value = p.id;
+    option.textContent = p.text;
+    parent.append(option);
   });
+  parent.value = q.branch?.parentId || "";
+  box.append(parent);
 
-  const head = $("response-head");
-  const body = $("response-body");
-  head.replaceChildren();
-  body.replaceChildren();
+  box.append(el("label", "…dette svar"));
+  const branchAnswer = document.createElement("select");
+  box.append(branchAnswer);
 
-  const header = el("tr");
-  ["Navn", "Tidspunkt (UTC)", ...questions.map(q => q.text)]
-    .forEach(t => header.append(el("th", t)));
-  head.append(header);
-
-  responses.forEach(r => {
-    const row = el("tr");
-    row.append(el("td", r.participant || "Ukendt"));
-
-    let time = "Ukendt";
-    if (r.createdAt?.toDate) {
-      time = r.createdAt.toDate().toLocaleString("da-DK", {
-        timeZone: "UTC"
-      });
+  function fillBranchAnswers() {
+    branchAnswer.replaceChildren();
+    const p = questions.find(p => p.id === parent.value);
+    const values = p ? optionsFor(p) : [];
+    if (!values.length) {
+      const option = document.createElement("option");
+      option.value = "";
+      option.textContent = "Vælg et overordnet spørgsmål";
+      branchAnswer.append(option);
     }
-    row.append(el("td", time));
-
-    questions.forEach(q => {
-      row.append(el("td", r.answers?.[q.id] || "—"));
+    values.forEach(value => {
+      const option = document.createElement("option");
+      option.value = value;
+      option.textContent = value;
+      branchAnswer.append(option);
     });
-    body.append(row);
+    if (q.branch?.answer) branchAnswer.value = q.branch.answer;
+  }
+
+  parent.addEventListener("change", fillBranchAnswers);
+  fillBranchAnswers();
+
+  function updateType() {
+    const custom = type.value === "custom";
+    opts.classList.toggle("hidden", !custom);
+    optsLabel.classList.toggle("hidden", !custom);
+  }
+  type.addEventListener("change", updateType);
+  updateType();
+
+  const save = el("button", "Gem ændringer");
+  save.type = "button";
+  save.addEventListener("click", async () => {
+    const questionText = text.value.trim();
+    const questionOptions = type.value === "custom"
+      ? opts.value.split("\n").map(s => s.trim()).filter(Boolean)
+      : ["Ja", "Nej", "Ved ikke"];
+
+    if (!questionText) return notify("Skriv en spørgsmålstekst.", true);
+    if (type.value === "custom" && questionOptions.length < 2) {
+      return notify("Tilføj mindst to svarmuligheder, én pr. linje.", true);
+    }
+    if (parent.value === q.id) {
+      return notify("Et spørgsmål kan ikke afhænge af sig selv.", true);
+    }
+
+    const data = {
+      text: questionText,
+      type: type.value,
+      options: questionOptions,
+      branch: parent.value
+        ? {parentId: parent.value, answer: branchAnswer.value}
+        : null
+    };
+
+    try {
+      await setDoc(doc(db, "questions", q.id), data, {merge:true});
+      await loadQuestions();
+      await loadDashboard();
+      notify("Spørgsmålet er opdateret.");
+    } catch (error) {
+      notify("Kunne ikke gemme. Kontrollér Firebase-reglerne.", true);
+    }
   });
 
-  renderQuestions();
+  box.append(save);
+  row.append(box);
 }
 
-function showAdminPanel(panel) {
-  ["dashboard", "settings-panel", "questions-panel"].forEach(id =>
-    show(id, id === panel)
-  );
-}
-
-async function refreshPublic() {
-  await loadSettings();
-  await loadQuestions();
-}
+$("new-type").addEventListener("change", () => {
+  show("new-options-area", $("new-type").value === "custom");
+});
 
 $("quiz-form").addEventListener("submit", async event => {
   event.preventDefault();
-  clearNotice();
+  notify("");
 
   const participant = $("participant").value.trim();
-  if (!participant) return notify("Skriv dit navn.", true);
-
   const answers = {};
+
   for (const q of questions) {
+    if (!isVisible(q, answers)) continue;
     const selected = document.querySelector(
       `input[name="question-${q.id}"]:checked`
     );
-    if (!selected) return notify("Besvar alle spørgsmål.", true);
+    if (!selected) {
+      return notify("Besvar alle de spørgsmål, der vises.", true);
+    }
     answers[q.id] = selected.value;
   }
 
@@ -411,16 +457,11 @@ $("quiz-form").addEventListener("submit", async event => {
     });
     $("quiz-form").reset();
     show("quiz-view", false);
-    show("thanks-view");
+    show("thanks-view", true);
     notify("");
-  } catch (e) {
+  } catch (error) {
     notify("Kunne ikke gemme svarene. Prøv igen senere.", true);
   }
-});
-
-$("back-to-quiz").addEventListener("click", () => {
-  show("thanks-view", false);
-  show("quiz-view");
 });
 
 $("login-form").addEventListener("submit", async event => {
@@ -430,7 +471,7 @@ $("login-form").addEventListener("submit", async event => {
       auth, $("admin-email").value, $("admin-password").value
     );
     notify("Du er logget ind.");
-  } catch (e) {
+  } catch (error) {
     notify("Login mislykkedes. Kontrollér e-mail og adgangskode.", true);
   }
 });
@@ -439,42 +480,37 @@ $("logout").addEventListener("click", async () => {
   await signOut(auth);
   location.href = location.pathname;
 });
-
 $("back-public").addEventListener("click", () => {
   location.href = location.pathname;
 });
 
+function showAdminPanel(panel) {
+  ["dashboard", "settings-panel", "questions-panel"].forEach(id => {
+    show(id, id === panel);
+  });
+}
+
 $("show-dashboard").addEventListener("click", async () => {
   showAdminPanel("dashboard");
-  try {
-    await loadDashboard();
-  } catch (e) {
-    notify("Kunne ikke hente svar. Kontrollér Firebase-reglerne.", true);
-  }
+  try { await loadDashboard(); }
+  catch (error) { notify("Kunne ikke hente svar. Kontrollér Firebase-reglerne.", true); }
 });
-
-$("show-settings").addEventListener("click", () =>
-  showAdminPanel("settings-panel")
-);
-
-$("show-questions").addEventListener("click", () =>
-  showAdminPanel("questions-panel")
-);
+$("show-settings").addEventListener("click", () => showAdminPanel("settings-panel"));
+$("show-questions").addEventListener("click", () => showAdminPanel("questions-panel"));
 
 $("settings-form").addEventListener("submit", async event => {
   event.preventDefault();
   const title = $("edit-title").value.trim();
   const description = $("edit-description").value.trim();
-
   if (!title) return notify("Overskriften skal udfyldes.", true);
 
   try {
-    await setDoc(doc(db, "settings", "main"), { title, description });
-    settings = { title, description };
+    await setDoc(doc(db, "settings", "main"), {title, description});
+    settings = {title, description};
     $("site-title").textContent = title;
     $("site-description").textContent = description;
     notify("Informationen er gemt.");
-  } catch (e) {
+  } catch (error) {
     notify("Kunne ikke gemme. Kontrollér, at du er administrator.", true);
   }
 });
@@ -482,43 +518,124 @@ $("settings-form").addEventListener("submit", async event => {
 $("add-question-form").addEventListener("submit", async event => {
   event.preventDefault();
   const text = $("new-question").value.trim();
+  const type = $("new-type").value;
+  const options = type === "custom"
+    ? $("new-options").value.split("\n").map(s => s.trim()).filter(Boolean)
+    : ["Ja", "Nej", "Ved ikke"];
+
   if (!text) return;
+  if (type === "custom" && options.length < 2) {
+    return notify("Skriv mindst to svarmuligheder, én pr. linje.", true);
+  }
 
   try {
     await addDoc(collection(db, "questions"), {
-      text,
-      createdAt: serverTimestamp()
+      text, type, options, createdAt: serverTimestamp()
     });
     $("new-question").value = "";
+    $("new-options").value = "";
+    $("new-type").value = "yesno";
+    show("new-options-area", false);
     await loadQuestions();
-    notify("Spørgsmålet er tilføjet.");
-  } catch (e) {
+    notify("Spørgsmålet er tilføjet. Redigér det for at vælge en forgrening.");
+  } catch (error) {
     notify("Kunne ikke tilføje spørgsmålet.", true);
   }
 });
 
-onAuthStateChanged(auth, async user => {
-  clearNotice();
-  const wantsAdmin = new URLSearchParams(location.search).get("admin") === "1";
+async function loadDashboard() {
+  const [qs, rs] = await Promise.all([
+    getDocs(query(collection(db, "questions"), orderBy("createdAt"))),
+    getDocs(query(collection(db, "responses"), orderBy("createdAt", "desc")))
+  ]);
 
+  questions = qs.docs.map(d => ({id:d.id, ...d.data()}));
+  responses = rs.docs.map(d => ({id:d.id, ...d.data()}));
+  $("total-responses").textContent = `Antal besvarelser: ${responses.length}`;
+
+  const stats = $("statistics");
+  stats.replaceChildren();
+
+  questions.forEach((q, index) => {
+    const counts = {};
+    optionsFor(q).forEach(option => counts[option] = 0);
+    let total = 0;
+
+    responses.forEach(response => {
+      const answer = response.answers?.[q.id];
+      if (answer !== undefined) {
+        counts[answer] = (counts[answer] || 0) + 1;
+        total++;
+      }
+    });
+
+    const box = el("div", "", "stat-row");
+    box.append(el("strong", `${index+1}. ${q.text}`));
+
+    Object.entries(counts).forEach(([answer, count]) => {
+      const pct = total ? Math.round(count / total * 100) : 0;
+      box.append(el("p", `${answer}: ${count} (${pct}%)`));
+      const bar = el("div", "", "bar");
+      const fill = el("span");
+      fill.style.width = pct + "%";
+      bar.append(fill);
+      box.append(bar);
+    });
+
+    box.append(el("p", `Besvaret: ${total} af ${responses.length}`, "muted"));
+    stats.append(box);
+  });
+
+  const head = $("response-head");
+  const body = $("response-body");
+  head.replaceChildren();
+  body.replaceChildren();
+
+  const headerRow = el("tr");
+  ["Navn", "Tidspunkt (UTC)", ...questions.map(q => q.text)]
+    .forEach(title => headerRow.append(el("th", title)));
+  head.append(headerRow);
+
+  responses.forEach(response => {
+    const row = el("tr");
+    row.append(el("td", response.participant || "Anonym"));
+
+    let time = "Ukendt";
+    if (response.createdAt?.toDate) {
+      time = response.createdAt.toDate().toLocaleString("da-DK", {timeZone:"UTC"});
+    }
+    row.append(el("td", time));
+
+    questions.forEach(q => {
+      row.append(el("td", response.answers?.[q.id] || "—"));
+    });
+    body.append(row);
+  });
+
+  renderQuestionManagement();
+}
+
+onAuthStateChanged(auth, async user => {
+  const wantsAdmin = new URLSearchParams(location.search).get("admin") === "1";
   show("admin-login", false);
   show("admin-view", false);
   show("quiz-view", !wantsAdmin);
   show("thanks-view", false);
 
   try {
-    await refreshPublic();
+    await loadSettings();
+    await loadQuestions();
 
     if (wantsAdmin && user) {
       show("quiz-view", false);
-      show("admin-view");
+      show("admin-view", true);
       showAdminPanel("dashboard");
       await loadDashboard();
     } else if (wantsAdmin) {
-      show("admin-login");
+      show("admin-login", true);
     }
-  } catch (e) {
-    notify("Kunne ikke hente spørgeskemaet. Kontrollér Firebase-konfigurationen.", true);
+  } catch (error) {
+    notify("Kunne ikke hente spørgeskemaet. Kontrollér Firebase-konfiguration og regler.", true);
   }
 });
 </script>
